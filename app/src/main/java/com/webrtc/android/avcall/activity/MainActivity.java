@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
         final EditText serverEditText = findViewById(R.id.ServerEditText);
         final EditText roomEditText = findViewById(R.id.RoomEditText);
+
         findViewById(R.id.JoinRoomBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
