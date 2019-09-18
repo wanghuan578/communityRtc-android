@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">XX-RTC</string>
+    <string name="join_room">Enter</string>
+    <string name="room_tips">Room Id: </string>
+    <string name="server_tips">Server Address: </string>
+    <string name="default_server">https://47.100.251.132</string>
+
+
+    <string name="login">Login</string>
+    <string name="username_tips">User Name: </string>
+    <string name="passwd_tips">Password: </string>
+    <string name="register">Register</string>
+
+    <string name="nickname_tips">Nick Name: </string>
+    <string name="gender_tips">Gender: </string>
+    <string name="email_tips">Email: </string>
+    <string name="cellphone_tips">Cellphone: </string>
+    <string name="identity_card_tips">Identity Card: </string>
+    <string name="submit">Submit</string>
+
+</resources>
