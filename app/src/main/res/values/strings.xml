@@ -8,6 +8,7 @@
 
     <string name="login">Login</string>
     <string name="username_tips">User Name: </string>
+    <string name="useridtips">User Id: </string>
     <string name="passwd_tips">Password: </string>
     <string name="register">Register</string>
 

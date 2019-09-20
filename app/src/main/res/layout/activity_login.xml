@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="@string/username_tips" />
+        android:text="@string/useridtips" />
 
     <EditText
         android:id="@+id/UserNameEditText"

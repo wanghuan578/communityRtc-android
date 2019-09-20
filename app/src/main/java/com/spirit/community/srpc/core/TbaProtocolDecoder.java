@@ -5,6 +5,7 @@ import java.util.List;
 import com.spirit.community.common.RpcEventType;
 import com.spirit.community.protocol.thrift.ClientLoginRes;
 import com.spirit.community.protocol.thrift.HelloNotify;
+import com.spirit.community.protocol.thrift.UserRegisterRes;
 import com.spirit.tba.Exception.TbaException;
 import com.spirit.tba.core.TsEvent;
 import com.spirit.tba.core.TsRpcByteBuffer;
@@ -41,7 +42,7 @@ public class TbaProtocolDecoder extends ByteToMessageDecoder {
             try {
                 switch (header.GetType()) {
 
-                    case RpcEventType.MT_COMMON_HELLO_NOTIFY: {
+                    case RpcEventType.MT_HELLO_NOTIFY: {
                         TsRpcProtocolFactory<HelloNotify> protocol = new TsRpcProtocolFactory<HelloNotify>(msg);
                         out.add(new TsEvent(header, protocol.Decode(HelloNotify.class)));
                     }
@@ -53,7 +54,11 @@ public class TbaProtocolDecoder extends ByteToMessageDecoder {
                     }
                     break;
 
-
+                    case RpcEventType.MT_CLIENT_REGISTER_RES: {
+                        TsRpcProtocolFactory<UserRegisterRes> protocol = new TsRpcProtocolFactory<UserRegisterRes>(msg);
+                        out.add(new TsEvent(header, protocol.Decode(UserRegisterRes.class)));
+                    }
+                    break;
 
                     default:
                         break;

@@ -1,5 +1,5 @@
 package com.spirit.community.srpc.core.observer;
 
-public interface EventObserver {
+public interface EventListener {
     void onEvent(int type, Object msg);
 }

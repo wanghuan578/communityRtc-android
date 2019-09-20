@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,10 +11,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:text="@string/username_tips" />
+
+    <EditText
+        android:id="@+id/UserNameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         android:text="@string/nickname_tips" />
 
     <EditText
         android:id="@+id/NickNameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="@string/passwd_tips" />
+
+    <EditText
+        android:id="@+id/PasswdEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -64,3 +93,4 @@
         android:text="@string/submit" />
 
 </LinearLayout>
+</ScrollView>
