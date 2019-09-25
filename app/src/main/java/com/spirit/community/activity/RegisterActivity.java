@@ -5,7 +5,9 @@ import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.alibaba.fastjson.JSON;
@@ -30,6 +32,8 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText identityCardEdit = null;
     private EditText invitationCodeEdit = null;
 
+    private Button registerBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,12 +51,6 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onEvent(int type, Object msg) {
                 switch (type) {
-                    case RpcEventType.NETWORK_DISCONNECT: {
-//                        Looper.prepare();
-//                        Toast.makeText(RegisterActivity.this, "网络异常", Toast.LENGTH_LONG).show();
-//                        Looper.loop();
-                    }
-                    break;
 
                     case RpcEventType.MT_HELLO_NOTIFY: {
 
@@ -73,7 +71,8 @@ public class RegisterActivity extends AppCompatActivity {
 
                     case RpcEventType.MT_CLIENT_REGISTER_RES: {
                         UserRegisterRes res = (UserRegisterRes) msg;
-                        System.out.println(JSON.toJSONString(res, true));
+
+                        Log.i(this.toString(), "UserRegisterRes: " + JSON.toJSONString(res, true));
 
                         SRpcClient.getInstance().getLoginServer().close();
 
@@ -84,6 +83,15 @@ public class RegisterActivity extends AppCompatActivity {
                             startActivity(intent);
                         }
                         else {
+
+                            registerBtn.post(new Runnable(){
+                                @Override
+                                public void run() {
+                                    registerBtn.setTextColor(0xFFFFFFFF);
+                                    registerBtn.setEnabled(true);
+                                }
+                            });
+
                             Looper.prepare();
                             Toast.makeText(RegisterActivity.this, res.error_text, Toast.LENGTH_SHORT).show();
                             Looper.loop();
@@ -97,12 +105,10 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.SubmitBtn).setOnClickListener(new View.OnClickListener() {
+        registerBtn = findViewById(R.id.SubmitBtn);
+        registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-//                usernameEdit.setHint(null);
-//                nickNameEdit.setHint(null);
 
                 if (TextUtils.isEmpty(usernameEdit.getText())) {
                     Toast.makeText(RegisterActivity.this, "username为空", Toast.LENGTH_SHORT).show();
@@ -124,6 +130,9 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
 
+                registerBtn.setTextColor(0xFFD0EFC6);
+                registerBtn.setEnabled(false);
+
                 try {
                     SRpcClient.getInstance().getLoginServer().connect(CommonDef.host, CommonDef.port);
                 } catch (Exception e) {
@@ -131,5 +140,12 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerBtn.setTextColor(0xFFFFFFFF);
+        registerBtn.setEnabled(true);
     }
 }

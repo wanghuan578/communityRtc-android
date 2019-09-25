@@ -74,7 +74,8 @@ public class LoginActivity extends AppCompatActivity {
                 pwdEdit.setText(passwd);
             }
         }
-
+        String sdcardPath = System.getenv("EXTERNAL_STORAGE");
+        Log.i(this.toString(), sdcardPath);
         try {
             SRpcClient.getInstance().init();
             SRpcClient.getInstance().register(new Observer.EventListener() {
@@ -90,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         case RpcEventType.MT_HELLO_NOTIFY: {
                             HelloNotify notify = (HelloNotify) msg;
-                            System.out.println("HelloNotifynotify: " + JSON.toJSONString(notify, true));
+                            Log.i(this.toString(), "HelloNotifynotify: " + JSON.toJSONString(notify, true));
 
                             ClientPasswordLoginReq req = new ClientPasswordLoginReq();
                             if (!TextUtils.isEmpty(uidEdit.getText())) {
@@ -110,15 +111,13 @@ public class LoginActivity extends AppCompatActivity {
                             try {
                                 byte[] data = new TbaUtil<ClientPasswordLoginReqChecksum>().Serialize(checksum, 1024);
                                 int srclen = data.length;
-                                System.out.println("srclen: " + srclen);
-
+                                Log.i(this.toString(),"srclen: " + srclen);
                                 req.check_sum = new String(data, "ISO8859-1");
                                 int destlen = req.check_sum.getBytes("ISO8859-1").length;
 
                                 ClientPasswordLoginReqChecksum check = new TbaUtil<ClientPasswordLoginReqChecksum>().Deserialize(req.check_sum.getBytes("ISO8859-1"), ClientPasswordLoginReqChecksum.class);
                                 System.out.println("ClientPasswordLoginReqChecksum: " + JSON.toJSONString(check, true));
-
-                                System.out.println("destlen: " + destlen);
+                                Log.i(this.toString(),"ClientPasswordLoginReqChecksum: " + JSON.toJSONString(check, true));
                             } catch (TbaException | IllegalAccessException | InstantiationException | UnsupportedEncodingException e) {
                                 Looper.prepare();
                                 Toast.makeText(LoginActivity.this, "程序异常", Toast.LENGTH_SHORT).show();
@@ -132,7 +131,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         case RpcEventType.MT_CLIENT_LOGIN_RES: {
                             ClientLoginRes res = (ClientLoginRes) msg;
-                            System.out.println(JSON.toJSONString(res, true));
+                            Log.i(this.toString(),"ClientLoginRes: " + JSON.toJSONString(res, true));
 
                             SRpcClient.getInstance().getLoginServer().close();
 

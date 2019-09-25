@@ -13,11 +13,11 @@ public class SRpcClient {
     private static SRpcClient _instance = null;
 
     public static SRpcClient getInstance() {
-        synchronized (SRpcClient.class) {
+        //synchronized (SRpcClient.class) {
             if (_instance == null) {
                 _instance = new SRpcClient();
             }
-        }
+        //}
         return _instance;
     }
 

@@ -29,3 +29,8 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### android archive ###
+/debug/
+/release/
+.gradle/

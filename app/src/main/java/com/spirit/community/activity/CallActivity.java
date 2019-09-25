@@ -271,7 +271,6 @@ public class CallActivity extends AppCompatActivity {
         IceServer iceServer = SignalClient.getInstance().getIceServer();
         PeerConnection.IceServer ice_server =
                     PeerConnection.IceServer.builder(iceServer.url)
-        //PeerConnection.IceServer.builder("turn:coturn.86bba.com:3478")
                                             .setPassword(iceServer.user)
                                             .setUsername(iceServer.passwd)
                                             .createIceServer();
