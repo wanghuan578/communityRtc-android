@@ -2,6 +2,7 @@ package com.spirit.community.rtc.avcall.signal;
 
 import android.util.Log;
 
+import com.spirit.community.protocol.thrift.common.IceServer;
 import com.spirit.community.rtc.avcall.utils.SSLSocketClient;
 
 import org.json.JSONException;
@@ -21,6 +22,25 @@ public class SignalClient {
 
     private Socket mSocket;
     private String mRoomName;
+
+    public IceServer getIceServer() {
+        return iceServer;
+    }
+
+    public void setIceServer(IceServer iceServer) {
+        this.iceServer = iceServer;
+    }
+
+    public String getSignalServer() {
+        return signalServer;
+    }
+
+    public void setSignalServer(String signalServer) {
+        this.signalServer = signalServer;
+    }
+
+    private IceServer iceServer;
+    private String signalServer;
 
     public interface OnSignalEventListener {
         void onConnected();

@@ -85,6 +85,19 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="@string/invitation_code_tips" />
+
+    <EditText
+        android:id="@+id/InvitationCodeEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
+
     <Button
         android:id="@+id/SubmitBtn"
         android:layout_width="match_parent"

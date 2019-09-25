@@ -3,9 +3,9 @@ package com.spirit.community.srpc.core;
 import java.util.List;
 
 import com.spirit.community.common.RpcEventType;
-import com.spirit.community.protocol.thrift.ClientLoginRes;
-import com.spirit.community.protocol.thrift.HelloNotify;
-import com.spirit.community.protocol.thrift.UserRegisterRes;
+import com.spirit.community.protocol.thrift.common.HelloNotify;
+import com.spirit.community.protocol.thrift.login.ClientLoginRes;
+import com.spirit.community.protocol.thrift.login.UserRegisterRes;
 import com.spirit.tba.Exception.TbaException;
 import com.spirit.tba.core.TsEvent;
 import com.spirit.tba.core.TsRpcByteBuffer;

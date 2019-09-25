@@ -1,13 +1,12 @@
 package com.spirit.community.activity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
+import com.spirit.community.protocol.thrift.common.IceServer;
 import com.spirit.community.rtc.avcall.signal.SignalClient;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,15 +35,11 @@ import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoCapturer;
 import org.webrtc.VideoDecoderFactory;
 import org.webrtc.VideoEncoderFactory;
-import org.webrtc.VideoFrame;
-import org.webrtc.VideoSink;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 public class CallActivity extends AppCompatActivity {
 
@@ -124,9 +119,9 @@ public class CallActivity extends AppCompatActivity {
 
         SignalClient.getInstance().setSignalEventListener(mOnSignalEventListener);
 
-        String serverAddr = getIntent().getStringExtra("ServerAddr");
+        //String serverAddr = getIntent().getStringExtra("ServerAddr");
         String roomName = getIntent().getStringExtra("RoomName");
-        SignalClient.getInstance().joinRoom(serverAddr, roomName);
+        SignalClient.getInstance().joinRoom(SignalClient.getInstance().getSignalServer(), roomName);
     }
 
     @Override
@@ -273,10 +268,12 @@ public class CallActivity extends AppCompatActivity {
 
         LinkedList<PeerConnection.IceServer> iceServers = new LinkedList<PeerConnection.IceServer>();
 
+        IceServer iceServer = SignalClient.getInstance().getIceServer();
         PeerConnection.IceServer ice_server =
-                    PeerConnection.IceServer.builder("turn:coturn.86bba.com:3478")
-                                            .setPassword("spirit")
-                                            .setUsername("spirit")
+                    PeerConnection.IceServer.builder(iceServer.url)
+        //PeerConnection.IceServer.builder("turn:coturn.86bba.com:3478")
+                                            .setPassword(iceServer.user)
+                                            .setUsername(iceServer.passwd)
                                             .createIceServer();
 
         iceServers.add(ice_server);
@@ -575,7 +572,7 @@ public class CallActivity extends AppCompatActivity {
         }
 
         private void onRemoteOfferReceived(JSONObject message) {
-            logcatOnUI("Receive Remote Call ...");
+            logcatOnUI("On Remote Call ...");
 
             if (mPeerConnection == null) {
                 mPeerConnection = createPeerConnection();
@@ -595,7 +592,7 @@ public class CallActivity extends AppCompatActivity {
         }
 
         private void onRemoteAnswerReceived(JSONObject message) {
-            logcatOnUI("Receive Remote Answer ...");
+            logcatOnUI("On Remote Answer ...");
             try {
                 String description = message.getString("sdp");
                 mPeerConnection.setRemoteDescription(
@@ -610,7 +607,7 @@ public class CallActivity extends AppCompatActivity {
         }
 
         private void onRemoteCandidateReceived(JSONObject message) {
-            logcatOnUI("Receive Remote Candidate ...");
+            logcatOnUI("On Candidate ...");
             try {
                 IceCandidate remoteIceCandidate =
                         new IceCandidate(message.getString("id"),
@@ -624,7 +621,7 @@ public class CallActivity extends AppCompatActivity {
         }
 
         private void onRemoteHangup() {
-            logcatOnUI("Receive Remote Hangup Event ...");
+            logcatOnUI("On Remote Hangup Event ...");
             hangup();
         }
     };

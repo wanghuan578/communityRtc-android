@@ -1,12 +1,12 @@
 package com.spirit.community.srpc.core;
 
-import com.spirit.community.srpc.core.observer.EventListener;
+import com.spirit.community.srpc.core.observer.Observer;
 import com.spirit.tba.core.TsEvent;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SRpcClient {
 
-    private EventListener observer = null;
+    private Observer.EventListener listener = null;
     private AtomicInteger state = null;
     private LoginServer loginServer = null;
 
@@ -34,13 +34,13 @@ public class SRpcClient {
         return loginServer;
     }
 
-    public void register(EventListener observer) {
-        this.observer = observer;
+    public void register(Observer.EventListener listener) {
+        this.listener = listener;
     }
 
     public void notify(int type, Object obj) {
-        if (observer != null) {
-            observer.onEvent(type, obj);
+        if (listener != null) {
+            listener.onEvent(type, obj);
         }
     }
 
