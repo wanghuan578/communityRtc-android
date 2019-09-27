@@ -2,7 +2,7 @@
 #-keep class com.spirit.community.srpc.core.**{*;}
 -keep class io.netty.**{*;}
 #-keep class com.spirit.community.protocol.**{*;}
-
+-keep class org.webrtc.**{*;}
 
 -optimizationpasses 5                                                           # 指定代码的压缩级别
 -dontusemixedcaseclassnames                                                     # 是否使用大小写混合

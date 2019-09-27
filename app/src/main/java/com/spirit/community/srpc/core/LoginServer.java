@@ -1,6 +1,6 @@
 package com.spirit.community.srpc.core;
 
-import com.spirit.tba.core.TsEvent;
+import com.spirit.tba.core.TbaEvent;
 import java.net.InetSocketAddress;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -61,7 +61,7 @@ public class LoginServer {
         return channel;
     }
 
-    public void putEvent(TsEvent ev) {
+    public void putEvent(TbaEvent ev) {
         channel.writeAndFlush(ev);
     }
 }

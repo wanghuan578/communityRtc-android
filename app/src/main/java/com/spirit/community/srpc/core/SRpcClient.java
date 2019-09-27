@@ -1,7 +1,7 @@
 package com.spirit.community.srpc.core;
 
 import com.spirit.community.srpc.core.observer.Observer;
-import com.spirit.tba.core.TsEvent;
+import com.spirit.tba.core.TbaEvent;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SRpcClient {
@@ -13,11 +13,11 @@ public class SRpcClient {
     private static SRpcClient _instance = null;
 
     public static SRpcClient getInstance() {
-        //synchronized (SRpcClient.class) {
+        synchronized (SRpcClient.class) {
             if (_instance == null) {
                 _instance = new SRpcClient();
             }
-        //}
+        }
         return _instance;
     }
 
@@ -58,15 +58,22 @@ public class SRpcClient {
         state.getAndSet(s);
     }
 
-    public void putEvent(TsEvent ev) {
+    public int getState() {
+        return state.get();
+    }
+
+    public void putEvent(TbaEvent ev) {
 
         switch (state.get()) {
-            case State.LOGIN_SERVER_CONNECT: {
+            case State.LOGIN_SERVER_CONNECT:
+            case State.LOGIN_SERVER_LOGIN:
+                {
                 loginServer.putEvent(ev);
             }
                 break;
 
             default:
+                assert false;
                 break;
         }
 

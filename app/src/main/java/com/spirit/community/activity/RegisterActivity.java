@@ -17,7 +17,7 @@ import com.spirit.community.protocol.thrift.login.UserRegisterReq;
 import com.spirit.community.protocol.thrift.login.UserRegisterRes;
 import com.spirit.community.srpc.core.SRpcClient;
 import com.spirit.community.srpc.core.observer.Observer;
-import com.spirit.tba.core.TsEvent;
+import com.spirit.tba.core.TbaEvent;
 import com.spirit.tba.core.TsRpcHead;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -65,7 +65,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                         //req.gender =
                         TsRpcHead head = new TsRpcHead(RpcEventType.MT_CLIENT_REGISTER_REQ);
-                        SRpcClient.getInstance().putEvent(new TsEvent(head, req, 1024));
+                        SRpcClient.getInstance().putEvent(new TbaEvent(head, req, 1024, false));
                     }
                         break;
 

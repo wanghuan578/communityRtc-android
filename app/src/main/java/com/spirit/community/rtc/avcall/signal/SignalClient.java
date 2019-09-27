@@ -83,7 +83,7 @@ public class SignalClient {
             mSocket = IO.socket(url, opts);
             mSocket.connect();
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            Log.e(this.toString(), e.getLocalizedMessage());
             return;
         }
         //mUserId = userId;

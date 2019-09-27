@@ -54,6 +54,7 @@ dependencies {
     implementation files('libs/javax.annotation-api-1.2.jar')
     implementation files('libs/netty-all-4.1.38.Final.jar')
     implementation files('libs/android-logging-log4j-1.0.3.jar')
+    implementation files('libs/commons-codec-1.11.jar')
 }
 
 repositories {

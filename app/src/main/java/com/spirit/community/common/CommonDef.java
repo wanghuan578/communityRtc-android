@@ -4,7 +4,8 @@ public class CommonDef {
 
 
 
-    public final static String host = "47.100.251.132";
+    //public final static String host = "47.100.251.132";
+    public final static String host = "192.168.152.42";
     public final static Integer port = 9999;
 
 }

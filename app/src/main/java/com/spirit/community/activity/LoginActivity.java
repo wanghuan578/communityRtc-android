@@ -1,6 +1,6 @@
 package com.spirit.community.activity;
 
-import android.Manifest;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -25,14 +25,15 @@ import com.spirit.community.protocol.thrift.login.ClientPasswordLoginReq;
 import com.spirit.community.protocol.thrift.login.ClientPasswordLoginReqChecksum;
 import com.spirit.community.rtc.avcall.signal.SignalClient;
 import com.spirit.community.srpc.core.SRpcClient;
+import com.spirit.community.srpc.core.State;
 import com.spirit.community.srpc.core.observer.Observer;
 import com.spirit.tba.Exception.TbaException;
-import com.spirit.tba.core.TsEvent;
+import com.spirit.tba.core.TbaEvent;
 import com.spirit.tba.core.TsRpcHead;
-import com.spirit.tba.utils.TbaUtil;
+import com.spirit.tba.tools.TbaToolsKit;
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
-import pub.devrel.easypermissions.EasyPermissions;
+
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -82,12 +83,6 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onEvent(int type, Object msg) {
                     switch (type) {
-                        case RpcEventType.NETWORK_DISCONNECT: {
-//                            Looper.prepare();
-//                            Toast.makeText(LoginActivity.this, "网络异常", Toast.LENGTH_LONG).show();
-//                            Looper.loop();
-                        }
-                        break;
 
                         case RpcEventType.MT_HELLO_NOTIFY: {
                             HelloNotify notify = (HelloNotify) msg;
@@ -109,13 +104,13 @@ public class LoginActivity extends AppCompatActivity {
                             checksum.server_random = notify.server_random;
                             checksum.client_random = clientRandom;
                             try {
-                                byte[] data = new TbaUtil<ClientPasswordLoginReqChecksum>().Serialize(checksum, 1024);
+                                byte[] data = new TbaToolsKit<ClientPasswordLoginReqChecksum>().serialize(checksum, 1024);
                                 int srclen = data.length;
                                 Log.i(this.toString(),"srclen: " + srclen);
                                 req.check_sum = new String(data, "ISO8859-1");
                                 int destlen = req.check_sum.getBytes("ISO8859-1").length;
 
-                                ClientPasswordLoginReqChecksum check = new TbaUtil<ClientPasswordLoginReqChecksum>().Deserialize(req.check_sum.getBytes("ISO8859-1"), ClientPasswordLoginReqChecksum.class);
+                                ClientPasswordLoginReqChecksum check = new TbaToolsKit<ClientPasswordLoginReqChecksum>().deserialize(req.check_sum.getBytes("ISO8859-1"), ClientPasswordLoginReqChecksum.class);
                                 System.out.println("ClientPasswordLoginReqChecksum: " + JSON.toJSONString(check, true));
                                 Log.i(this.toString(),"ClientPasswordLoginReqChecksum: " + JSON.toJSONString(check, true));
                             } catch (TbaException | IllegalAccessException | InstantiationException | UnsupportedEncodingException e) {
@@ -125,7 +120,8 @@ public class LoginActivity extends AppCompatActivity {
                             }
 
                             TsRpcHead head = new TsRpcHead(RpcEventType.MT_CLIENT_PASSWORD_LOGIN_REQ);
-                            SRpcClient.getInstance().putEvent(new TsEvent(head, req, 1024));
+                            SRpcClient.getInstance().setState(State.LOGIN_SERVER_LOGIN);
+                            SRpcClient.getInstance().putEvent(new TbaEvent(head, req, 1024, false));
                         }
                         break;
 
@@ -135,15 +131,15 @@ public class LoginActivity extends AppCompatActivity {
 
                             SRpcClient.getInstance().getLoginServer().close();
 
-                            try {
-                                SessionTicket sessionTicket = new TbaUtil<SessionTicket>().Deserialize(res.session_ticket.getBytes("ISO8859-1"), SessionTicket.class);
-                                SignalClient.getInstance().setIceServer(sessionTicket.ice_server);
-                                SignalClient.getInstance().setSignalServer(sessionTicket.signal_server);
-                            } catch (IllegalAccessException | TbaException | InstantiationException | UnsupportedEncodingException e) {
-                                Log.i(this.toString(), e.getMessage());
-                            }
-
                             if (res.error_code == 0) {
+                                try {
+                                    SessionTicket sessionTicket = new TbaToolsKit<SessionTicket>().deserialize(res.session_ticket.getBytes("ISO8859-1"), SessionTicket.class);
+                                    SignalClient.getInstance().setIceServer(sessionTicket.ice_server);
+                                    SignalClient.getInstance().setSignalServer(sessionTicket.signal_server);
+                                } catch (IllegalAccessException | TbaException | InstantiationException | UnsupportedEncodingException e) {
+                                    Log.i(this.toString(), e.getMessage());
+                                }
+
                                 boolean checked = rememberPassCheckBox.isChecked();
                                 if (checked) {
                                     SharedPreferences.Editor edit = config.edit();
@@ -156,6 +152,13 @@ public class LoginActivity extends AppCompatActivity {
                                 startActivity(intent);
                             }
                             else {
+                                loginBtn.post(new Runnable(){
+                                    @Override
+                                    public void run() {
+                                        loginBtn.setTextColor(0xFFFFFFFF);
+                                        loginBtn.setEnabled(true);
+                                    }
+                                });
                                 Looper.prepare();
                                 Toast.makeText(LoginActivity.this, res.getError_text(), Toast.LENGTH_SHORT).show();
                                 Looper.loop();

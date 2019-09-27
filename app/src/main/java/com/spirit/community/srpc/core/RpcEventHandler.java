@@ -1,7 +1,7 @@
 package com.spirit.community.srpc.core;
 
 import com.spirit.community.common.RpcEventType;
-import com.spirit.tba.core.TsEvent;
+import com.spirit.tba.core.TbaEvent;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -21,7 +21,7 @@ public class RpcEventHandler extends SimpleChannelInboundHandler {
     
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg){
-    	TsEvent ev = (TsEvent) msg;
+        TbaEvent ev = (TbaEvent) msg;
 		SRpcClient.getInstance().notify(ev.getHead().GetType(), ev.getBody());
     }
 
