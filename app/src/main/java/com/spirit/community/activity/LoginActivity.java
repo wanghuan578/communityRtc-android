@@ -37,7 +37,6 @@ import java.util.Random;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static final String TAG = "LoginActivity";
     private SharedPreferences config;
     private CheckBox rememberPassCheckBox;
     private String uid;
@@ -75,6 +74,7 @@ public class LoginActivity extends AppCompatActivity {
                 pwdEdit.setText(passwd);
             }
         }
+
         String sdcardPath = System.getenv("EXTERNAL_STORAGE");
         Log.i(this.toString(), sdcardPath);
         try {
@@ -111,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
                                 int destlen = req.check_sum.getBytes("ISO8859-1").length;
 
                                 ClientPasswordLoginReqChecksum check = new TbaToolsKit<ClientPasswordLoginReqChecksum>().deserialize(req.check_sum.getBytes("ISO8859-1"), ClientPasswordLoginReqChecksum.class);
-                                System.out.println("ClientPasswordLoginReqChecksum: " + JSON.toJSONString(check, true));
+                                //System.out.println("ClientPasswordLoginReqChecksum: " + JSON.toJSONString(check, true));
                                 Log.i(this.toString(),"ClientPasswordLoginReqChecksum: " + JSON.toJSONString(check, true));
                             } catch (TbaException | IllegalAccessException | InstantiationException | UnsupportedEncodingException e) {
                                 Looper.prepare();

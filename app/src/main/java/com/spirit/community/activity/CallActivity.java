@@ -1,6 +1,7 @@
 package com.spirit.community.activity;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -53,8 +54,10 @@ public class CallActivity extends AppCompatActivity {
 
     private static final String TAG = "CallActivity";
 
-    public static final String VIDEO_TRACK_ID = "1";//"ARDAMSv0";
-    public static final String AUDIO_TRACK_ID = "2";//"ARDAMSa0";
+    public static final String VIDEO_TRACK_ID = "ARDAMSv0";
+    public static final String AUDIO_TRACK_ID = "ARDAMSa0";
+//    public static final String VIDEO_TRACK_ID = "1";//"ARDAMSv0";
+//    public static final String AUDIO_TRACK_ID = "2";//"ARDAMSa0";
 
     //用于数据传输
     private PeerConnection mPeerConnection;
@@ -113,9 +116,23 @@ public class CallActivity extends AppCompatActivity {
         mVideoTrack.setEnabled(true);
         mVideoTrack.addSink(mLocalSurfaceView);
 
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
+        int currVolume = audioManager.getStreamVolume(AudioManager.STREAM_VOICE_CALL);
+        //int currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        if(!audioManager.isSpeakerphoneOn()) {
+            audioManager.setSpeakerphoneOn(true);
+        }
+        audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL,
+                audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL),
+                AudioManager.STREAM_VOICE_CALL);
+        int maxVolume00 = audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL);
+
         AudioSource audioSource = mPeerConnectionFactory.createAudioSource(new MediaConstraints());
         mAudioTrack = mPeerConnectionFactory.createAudioTrack(AUDIO_TRACK_ID, audioSource);
         mAudioTrack.setEnabled(true);
+        //mAudioTrack.setVolume(maxVolume);
 
         SignalClient.getInstance().setSignalEventListener(mOnSignalEventListener);
 
