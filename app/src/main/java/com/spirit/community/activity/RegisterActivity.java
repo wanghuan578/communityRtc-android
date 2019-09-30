@@ -15,7 +15,7 @@ import com.spirit.community.common.CommonDef;
 import com.spirit.community.common.RpcEventType;
 import com.spirit.community.protocol.thrift.login.UserRegisterReq;
 import com.spirit.community.protocol.thrift.login.UserRegisterRes;
-import com.spirit.community.srpc.core.SRpcClient;
+import com.spirit.community.srpc.core.SRpcBizApp;
 import com.spirit.community.srpc.core.observer.Observer;
 import com.spirit.tba.core.TbaEvent;
 import com.spirit.tba.core.TsRpcHead;
@@ -47,7 +47,7 @@ public class RegisterActivity extends AppCompatActivity {
         identityCardEdit = findViewById(R.id.IdentityEditText);
         invitationCodeEdit = findViewById(R.id.InvitationCodeEditText);
 
-        SRpcClient.getInstance().register(new Observer.EventListener() {
+        SRpcBizApp.getInstance().register(new Observer.EventListener() {
             @Override
             public void onEvent(int type, Object msg) {
                 switch (type) {
@@ -60,12 +60,12 @@ public class RegisterActivity extends AppCompatActivity {
                         req.password = passwd = passwdEdit.getText().toString();
                         req.invitation_code = invitationCodeEdit.getText().toString();
                         req.gender = 0;
+                        req.identity_card = identityCardEdit.getText().toString();
                         req.cellphone = cellphoneEdit.getText().toString();
                         req.email = emailEdit.getText().toString();
 
-                        //req.gender =
                         TsRpcHead head = new TsRpcHead(RpcEventType.MT_CLIENT_REGISTER_REQ);
-                        SRpcClient.getInstance().putEvent(new TbaEvent(head, req, 1024, false));
+                        SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 1024, false));
                     }
                         break;
 
@@ -74,7 +74,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                         Log.i(this.toString(), "UserRegisterRes: " + JSON.toJSONString(res, true));
 
-                        SRpcClient.getInstance().getLoginServer().close();
+                        SRpcBizApp.getInstance().getLoginServer().close();
 
                         if (res.error_code == 0) {
                             Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
@@ -83,7 +83,6 @@ public class RegisterActivity extends AppCompatActivity {
                             startActivity(intent);
                         }
                         else {
-
                             registerBtn.post(new Runnable(){
                                 @Override
                                 public void run() {
@@ -134,8 +133,10 @@ public class RegisterActivity extends AppCompatActivity {
                 registerBtn.setEnabled(false);
 
                 try {
-                    SRpcClient.getInstance().getLoginServer().connect(CommonDef.host, CommonDef.port);
-                } catch (Exception e) {
+                    SRpcBizApp.getInstance().getLoginServer().connect(CommonDef.host, CommonDef.port);
+                }
+                catch (Exception e) {
+                    Log.e(this.toString(), e.getMessage());
                     Toast.makeText(RegisterActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
                 }
             }

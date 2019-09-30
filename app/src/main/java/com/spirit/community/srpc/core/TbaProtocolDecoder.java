@@ -1,9 +1,7 @@
 package com.spirit.community.srpc.core;
 
 import android.util.Log;
-
 import java.util.List;
-
 import com.spirit.community.common.RpcEventType;
 import com.spirit.community.protocol.thrift.common.HelloNotify;
 import com.spirit.community.protocol.thrift.login.ClientLoginRes;
@@ -11,7 +9,6 @@ import com.spirit.community.protocol.thrift.login.UserRegisterRes;
 import com.spirit.tba.Exception.TbaException;
 import com.spirit.tba.core.TbaAes;
 import com.spirit.tba.core.TbaEvent;
-import com.spirit.tba.core.TbaMd5;
 import com.spirit.tba.core.TsRpcByteBuffer;
 import com.spirit.tba.core.TsRpcEventParser;
 import com.spirit.tba.core.TsRpcHead;
@@ -40,13 +37,13 @@ public class TbaProtocolDecoder extends ByteToMessageDecoder {
                 for (int i = 0; i < msg_len - 4; i++) {
                     encrypt[i] = in.readByte();
                 }
-//                String str = new String(encrypt, "utf-8");
-//                System.out.println("encrypt str =============>" + str);
-//                System.out.println("len:" + str.length());
 
-                String key = "123";
-                //String original = TbaAes.decrypt(new String(encrypt, "utf-8"), "123");
-                String original = TbaAes.decode(new String(encrypt, "utf-8"), key);
+                Long key = null;
+                if (SRpcBizApp.getInstance().getState() == State.LOGIN_SERVER_LOGIN) {
+                    key = SRpcBizApp.getInstance().getLoginServer().getServerRandom();
+                }
+                Log.i(this.toString(),"decrypt key: " + key);
+                String original = TbaAes.decode(new String(encrypt, "utf-8"), String.valueOf(key));
                 byte[] msg00 = original.getBytes("ISO8859-1");
                 msg = new TsRpcByteBuffer(msg00, msg00.length);
             }
@@ -59,7 +56,6 @@ public class TbaProtocolDecoder extends ByteToMessageDecoder {
                 }
             }
 
-
             TsRpcEventParser parser = new TsRpcEventParser(msg);
             TsRpcHead header = parser.Head();
 
@@ -68,7 +64,9 @@ public class TbaProtocolDecoder extends ByteToMessageDecoder {
 
                     case RpcEventType.MT_HELLO_NOTIFY: {
                         TsRpcProtocolFactory<HelloNotify> protocol = new TsRpcProtocolFactory<HelloNotify>(msg);
-                        out.add(new TbaEvent(header, protocol.Decode(HelloNotify.class)));
+                        HelloNotify notify = protocol.Decode(HelloNotify.class);
+                        SRpcBizApp.getInstance().getLoginServer().setServerRandom(notify.getServer_random());
+                        out.add(new TbaEvent(header, notify));
                     }
                     break;
 
@@ -90,13 +88,13 @@ public class TbaProtocolDecoder extends ByteToMessageDecoder {
                 }
             }
             catch(TbaException e){
-                //log.error(e.getLocalizedMessage(), e);
+                Log.e(this.toString(), e.getMessage());
             }
             catch(InstantiationException e){
-                //log.error(e.getLocalizedMessage(), e);
+                Log.e(this.toString(), e.getMessage());
             }
             catch(IllegalAccessException e){
-                //log.error(e.getLocalizedMessage(), e);
+                Log.e(this.toString(), e.getMessage());
             }
 
 

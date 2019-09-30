@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">比邻</string>
+    <string name="app_name">约视</string>
     <string name="join_room">Enter</string>
     <string name="room_tips">Room Id: </string>
     <string name="server_tips">Server Address: </string>

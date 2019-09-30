@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.webrtc.android.avcall"
+        applicationId "com.spirit.community.video"
         minSdkVersion 16
         targetSdkVersion 28
         versionCode 1

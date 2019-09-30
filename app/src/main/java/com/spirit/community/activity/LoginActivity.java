@@ -24,7 +24,7 @@ import com.spirit.community.protocol.thrift.login.ClientLoginRes;
 import com.spirit.community.protocol.thrift.login.ClientPasswordLoginReq;
 import com.spirit.community.protocol.thrift.login.ClientPasswordLoginReqChecksum;
 import com.spirit.community.rtc.avcall.signal.SignalClient;
-import com.spirit.community.srpc.core.SRpcClient;
+import com.spirit.community.srpc.core.SRpcBizApp;
 import com.spirit.community.srpc.core.State;
 import com.spirit.community.srpc.core.observer.Observer;
 import com.spirit.tba.Exception.TbaException;
@@ -78,8 +78,8 @@ public class LoginActivity extends AppCompatActivity {
         String sdcardPath = System.getenv("EXTERNAL_STORAGE");
         Log.i(this.toString(), sdcardPath);
         try {
-            SRpcClient.getInstance().init();
-            SRpcClient.getInstance().register(new Observer.EventListener() {
+            SRpcBizApp.getInstance().init();
+            SRpcBizApp.getInstance().register(new Observer.EventListener() {
                 @Override
                 public void onEvent(int type, Object msg) {
                     switch (type) {
@@ -111,17 +111,18 @@ public class LoginActivity extends AppCompatActivity {
                                 int destlen = req.check_sum.getBytes("ISO8859-1").length;
 
                                 ClientPasswordLoginReqChecksum check = new TbaToolsKit<ClientPasswordLoginReqChecksum>().deserialize(req.check_sum.getBytes("ISO8859-1"), ClientPasswordLoginReqChecksum.class);
-                                //System.out.println("ClientPasswordLoginReqChecksum: " + JSON.toJSONString(check, true));
                                 Log.i(this.toString(),"ClientPasswordLoginReqChecksum: " + JSON.toJSONString(check, true));
-                            } catch (TbaException | IllegalAccessException | InstantiationException | UnsupportedEncodingException e) {
+                            }
+                            catch (TbaException | IllegalAccessException | InstantiationException | UnsupportedEncodingException e) {
+                                Log.e(this.toString(), e.getMessage());
                                 Looper.prepare();
                                 Toast.makeText(LoginActivity.this, "程序异常", Toast.LENGTH_SHORT).show();
                                 Looper.loop();
                             }
 
                             TsRpcHead head = new TsRpcHead(RpcEventType.MT_CLIENT_PASSWORD_LOGIN_REQ);
-                            SRpcClient.getInstance().setState(State.LOGIN_SERVER_LOGIN);
-                            SRpcClient.getInstance().putEvent(new TbaEvent(head, req, 1024, false));
+                            SRpcBizApp.getInstance().setState(State.LOGIN_SERVER_LOGIN);
+                            SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 1024, true));
                         }
                         break;
 
@@ -129,7 +130,7 @@ public class LoginActivity extends AppCompatActivity {
                             ClientLoginRes res = (ClientLoginRes) msg;
                             Log.i(this.toString(),"ClientLoginRes: " + JSON.toJSONString(res, true));
 
-                            SRpcClient.getInstance().getLoginServer().close();
+                            SRpcBizApp.getInstance().getLoginServer().close();
 
                             if (res.error_code == 0) {
                                 try {
@@ -174,7 +175,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(this.toString(), e.getMessage());
         }
 
         loginBtn = findViewById(R.id.LoginBtn);
@@ -199,7 +200,7 @@ public class LoginActivity extends AppCompatActivity {
                     uid = uidEdit.getText().toString();
                     passwd = pwdEdit.getText().toString();
 
-                    SRpcClient.getInstance().getLoginServer().connect(CommonDef.host, CommonDef.port);
+                    SRpcBizApp.getInstance().getLoginServer().connect(CommonDef.host, CommonDef.port);
                 } catch (Exception e) {
                     Log.i(this.toString(), e.getMessage());
                 }

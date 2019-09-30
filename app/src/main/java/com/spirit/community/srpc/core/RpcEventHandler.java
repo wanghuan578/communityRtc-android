@@ -16,13 +16,13 @@ public class RpcEventHandler extends SimpleChannelInboundHandler {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        SRpcClient.getInstance().notify(RpcEventType.NETWORK_DISCONNECT, null);
+        SRpcBizApp.getInstance().transfer2UI(RpcEventType.NETWORK_DISCONNECT, null);
     }
     
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg){
         TbaEvent ev = (TbaEvent) msg;
-		SRpcClient.getInstance().notify(ev.getHead().GetType(), ev.getBody());
+		SRpcBizApp.getInstance().transfer2UI(ev.getHead().GetType(), ev.getBody());
     }
 
 	@Override

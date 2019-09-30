@@ -16,6 +16,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 public class LoginServer {
 
     private Channel channel = null;
+    private Long serverRandom = null;
 
     public LoginServer() {
 
@@ -43,18 +44,18 @@ public class LoginServer {
                 .addListener((ChannelFutureListener) future -> {
                     if (future.isSuccess()) {
                         channel = (SocketChannel) future.channel();
-                        SRpcClient.getInstance().setState(State.LOGIN_SERVER_CONNECT);
+                        SRpcBizApp.getInstance().setState(State.LOGIN_SERVER_CONNECT);
                     } else {
                         future.channel().close();
                         group.shutdownGracefully();
-                        SRpcClient.getInstance().setState(State.LOGIN_SERVER_DISCONNECT);
+                        SRpcBizApp.getInstance().setState(State.LOGIN_SERVER_DISCONNECT);
                     }
                 });
     }
 
     public void close() {
         channel.close();
-        SRpcClient.getInstance().setState(State.LOGIN_SERVER_DISCONNECT);
+        SRpcBizApp.getInstance().setState(State.LOGIN_SERVER_DISCONNECT);
     }
 
     public Channel getChannel() {
@@ -63,5 +64,13 @@ public class LoginServer {
 
     public void putEvent(TbaEvent ev) {
         channel.writeAndFlush(ev);
+    }
+
+    public Long getServerRandom() {
+        return serverRandom;
+    }
+
+    public void setServerRandom(Long serverRandom) {
+        this.serverRandom = serverRandom;
     }
 }

@@ -4,18 +4,19 @@ import com.spirit.community.srpc.core.observer.Observer;
 import com.spirit.tba.core.TbaEvent;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SRpcClient {
+public class SRpcBizApp {
 
     private Observer.EventListener listener = null;
     private AtomicInteger state = null;
     private LoginServer loginServer = null;
 
-    private static SRpcClient _instance = null;
 
-    public static SRpcClient getInstance() {
-        synchronized (SRpcClient.class) {
+    private static SRpcBizApp _instance = null;
+
+    public static SRpcBizApp getInstance() {
+        synchronized (SRpcBizApp.class) {
             if (_instance == null) {
-                _instance = new SRpcClient();
+                _instance = new SRpcBizApp();
             }
         }
         return _instance;
@@ -26,7 +27,7 @@ public class SRpcClient {
         loginServer = new LoginServer();
     }
 
-    private SRpcClient() {
+    private SRpcBizApp() {
 
     }
 
@@ -38,7 +39,7 @@ public class SRpcClient {
         this.listener = listener;
     }
 
-    public void notify(int type, Object obj) {
+    public void transfer2UI(int type, Object obj) {
         if (listener != null) {
             listener.onEvent(type, obj);
         }
@@ -66,8 +67,7 @@ public class SRpcClient {
 
         switch (state.get()) {
             case State.LOGIN_SERVER_CONNECT:
-            case State.LOGIN_SERVER_LOGIN:
-                {
+            case State.LOGIN_SERVER_LOGIN: {
                 loginServer.putEvent(ev);
             }
                 break;
