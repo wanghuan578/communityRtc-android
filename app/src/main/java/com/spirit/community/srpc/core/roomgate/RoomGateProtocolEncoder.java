@@ -1,17 +1,22 @@
-package com.spirit.community.srpc.core;
+package com.spirit.community.srpc.core.roomgate;
 
 import android.util.Log;
+
+import com.spirit.community.srpc.core.SRpcBizApp;
+import com.spirit.community.srpc.core.State;
 import com.spirit.tba.core.TbaAes;
 import com.spirit.tba.core.TbaEvent;
 import com.spirit.tba.core.TsRpcByteBuffer;
 import com.spirit.tba.core.TsRpcHead;
 import com.spirit.tba.core.TsRpcProtocolFactory;
+
+import org.apache.thrift.TBase;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import org.apache.thrift.TBase;
 
-public class TbaProtocolEncoder extends MessageToByteEncoder<Object> {
+public class RoomGateProtocolEncoder extends MessageToByteEncoder<Object> {
 
 	@Override
 	protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
@@ -26,6 +31,9 @@ public class TbaProtocolEncoder extends MessageToByteEncoder<Object> {
 			Long key = null;
 			if (SRpcBizApp.getInstance().getState() == State.LOGIN_SERVER_LOGIN) {
 				key = SRpcBizApp.getInstance().getLoginServer().getServerRandom();
+			}
+			else if (SRpcBizApp.getInstance().getState() >= State.ROOMGATE_CONNECTING) {
+				key = SRpcBizApp.getInstance().getRoomGate().getServerRandom();
 			}
 
 			Log.i(this.toString(),"encrypt key: " + key);

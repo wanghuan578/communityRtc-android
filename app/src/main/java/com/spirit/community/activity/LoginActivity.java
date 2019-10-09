@@ -18,11 +18,14 @@ import android.widget.Toast;
 import com.alibaba.fastjson.JSON;
 import com.spirit.community.common.CommonDef;
 import com.spirit.community.common.RpcEventType;
+import com.spirit.community.protocol.thrift.common.CommonRes;
 import com.spirit.community.protocol.thrift.common.HelloNotify;
 import com.spirit.community.protocol.thrift.common.SessionTicket;
 import com.spirit.community.protocol.thrift.login.ClientLoginRes;
 import com.spirit.community.protocol.thrift.login.ClientPasswordLoginReq;
 import com.spirit.community.protocol.thrift.login.ClientPasswordLoginReqChecksum;
+import com.spirit.community.protocol.thrift.roomgate.ConnectChecksum;
+import com.spirit.community.protocol.thrift.roomgate.ConnectReq;
 import com.spirit.community.rtc.avcall.signal.SignalClient;
 import com.spirit.community.srpc.core.SRpcBizApp;
 import com.spirit.community.srpc.core.State;
@@ -82,12 +85,30 @@ public class LoginActivity extends AppCompatActivity {
             SRpcBizApp.getInstance().register(new Observer.EventListener() {
                 @Override
                 public void onEvent(int type, Object msg) {
-                    switch (type) {
 
-                        case RpcEventType.MT_HELLO_NOTIFY: {
-                            HelloNotify notify = (HelloNotify) msg;
-                            Log.i(this.toString(), "HelloNotifynotify: " + JSON.toJSONString(notify, true));
+                    if (type == RpcEventType.MT_HELLO_NOTIFY) {
+                        HelloNotify notify = (HelloNotify) msg;
+                        Log.i(this.toString(), "HelloNotifynotify: " + JSON.toJSONString(notify, true));
 
+                        if (SRpcBizApp.getInstance().getState() == State.ROOMGATE_CONNECTING) {
+
+                            ConnectReq req = new ConnectReq();
+                            ConnectChecksum checksum = new ConnectChecksum();
+                            checksum.client_random = new Random().nextLong();
+                            checksum.server_random = notify.server_random;
+                            checksum.user_id = Long.valueOf(uid);
+
+                            try {
+                                byte[] data = new TbaToolsKit<ConnectChecksum>().serialize(checksum, 1024);
+                                req.checksum = new String(data, "ISO8859-1");
+                            } catch (TbaException | UnsupportedEncodingException e) {
+                                Log.e(this.toString(), e.getMessage());
+                            }
+
+                            TsRpcHead head = new TsRpcHead(RpcEventType.ROOMGATE_CONNECT_REQ);
+                            SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 512, true));
+                        }
+                        else {
                             ClientPasswordLoginReq req = new ClientPasswordLoginReq();
                             if (!TextUtils.isEmpty(uidEdit.getText())) {
                                 req.user_id = Long.valueOf(uidEdit.getText().toString());
@@ -110,10 +131,10 @@ public class LoginActivity extends AppCompatActivity {
                                 req.check_sum = new String(data, "ISO8859-1");
                                 int destlen = req.check_sum.getBytes("ISO8859-1").length;
 
-                                ClientPasswordLoginReqChecksum check = new TbaToolsKit<ClientPasswordLoginReqChecksum>().deserialize(req.check_sum.getBytes("ISO8859-1"), ClientPasswordLoginReqChecksum.class);
-                                Log.i(this.toString(),"ClientPasswordLoginReqChecksum: " + JSON.toJSONString(check, true));
+//                                ClientPasswordLoginReqChecksum check = new TbaToolsKit<ClientPasswordLoginReqChecksum>().deserialize(req.check_sum.getBytes("ISO8859-1"), ClientPasswordLoginReqChecksum.class);
+//                                Log.i(this.toString(),"ClientPasswordLoginReqChecksum: " + JSON.toJSONString(check, true));
                             }
-                            catch (TbaException | IllegalAccessException | InstantiationException | UnsupportedEncodingException e) {
+                            catch (TbaException | UnsupportedEncodingException e) {
                                 Log.e(this.toString(), e.getMessage());
                                 Looper.prepare();
                                 Toast.makeText(LoginActivity.this, "程序异常", Toast.LENGTH_SHORT).show();
@@ -124,51 +145,57 @@ public class LoginActivity extends AppCompatActivity {
                             SRpcBizApp.getInstance().setState(State.LOGIN_SERVER_LOGIN);
                             SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 1024, true));
                         }
-                        break;
+                    }
+                    else if (type ==  RpcEventType.MT_CLIENT_LOGIN_RES) {
+                        ClientLoginRes res = (ClientLoginRes) msg;
+                        Log.i(this.toString(),"ClientLoginRes: " + JSON.toJSONString(res, true));
 
-                        case RpcEventType.MT_CLIENT_LOGIN_RES: {
-                            ClientLoginRes res = (ClientLoginRes) msg;
-                            Log.i(this.toString(),"ClientLoginRes: " + JSON.toJSONString(res, true));
+                        SRpcBizApp.getInstance().getLoginServer().close();
 
-                            SRpcBizApp.getInstance().getLoginServer().close();
-
-                            if (res.error_code == 0) {
-                                try {
-                                    SessionTicket sessionTicket = new TbaToolsKit<SessionTicket>().deserialize(res.session_ticket.getBytes("ISO8859-1"), SessionTicket.class);
-                                    SignalClient.getInstance().setIceServer(sessionTicket.ice_server);
-                                    SignalClient.getInstance().setSignalServer(sessionTicket.signal_server);
-                                } catch (IllegalAccessException | TbaException | InstantiationException | UnsupportedEncodingException e) {
-                                    Log.i(this.toString(), e.getMessage());
-                                }
-
-                                boolean checked = rememberPassCheckBox.isChecked();
-                                if (checked) {
-                                    SharedPreferences.Editor edit = config.edit();
-                                    edit.putString("uid", uid);
-                                    edit.putString("passwd", passwd);
-                                    edit.putBoolean("is_remember", true);
-                                    edit.commit();
-                                }
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intent);
+                        if (res.error_code == 0) {
+                            try {
+                                SessionTicket sessionTicket = new TbaToolsKit<SessionTicket>().deserialize(res.session_ticket.getBytes("ISO8859-1"), SessionTicket.class);
+                                SignalClient.getInstance().setIceServer(sessionTicket.ice_server);
+                                SignalClient.getInstance().setSignalServer(sessionTicket.signal_server);
+                            } catch (IllegalAccessException | TbaException | InstantiationException | UnsupportedEncodingException e) {
+                                Log.e(this.toString(), e.getMessage());
                             }
-                            else {
-                                loginBtn.post(new Runnable(){
-                                    @Override
-                                    public void run() {
-                                        loginBtn.setTextColor(0xFFFFFFFF);
-                                        loginBtn.setEnabled(true);
-                                    }
-                                });
-                                Looper.prepare();
-                                Toast.makeText(LoginActivity.this, res.getError_text(), Toast.LENGTH_SHORT).show();
-                                Looper.loop();
+
+                            boolean checked = rememberPassCheckBox.isChecked();
+                            if (checked) {
+                                SharedPreferences.Editor edit = config.edit();
+                                edit.putString("uid", uid);
+                                edit.putString("passwd", passwd);
+                                edit.putBoolean("is_remember", true);
+                                edit.commit();
+                            }
+
+                            try {
+                                SRpcBizApp.getInstance().getRoomGate().open(CommonDef.ROOMGATE_HOST, CommonDef.ROOMGATE_PORT);
+                            } catch (Exception e) {
+                                Log.e(this.toString(), e.getMessage());
                             }
                         }
-                        break;
-
-                        default:
-                            break;
+                        else {
+                            loginBtn.post(new Runnable(){
+                                @Override
+                                public void run() {
+                                    loginBtn.setTextColor(0xFFFFFFFF);
+                                    loginBtn.setEnabled(true);
+                                }
+                            });
+                            Looper.prepare();
+                            Toast.makeText(LoginActivity.this, res.getError_text(), Toast.LENGTH_SHORT).show();
+                            Looper.loop();
+                        }
+                    }
+                    else if (type == RpcEventType.ROOMGATE_CONNECT_RES) {
+                        CommonRes res = (CommonRes) msg;
+                        if (res.error_code == 0) {
+                            SRpcBizApp.getInstance().setState(State.ROOMGATE_CONNECTED);
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            startActivity(intent);
+                        }
                     }
                 }
             });
@@ -200,7 +227,7 @@ public class LoginActivity extends AppCompatActivity {
                     uid = uidEdit.getText().toString();
                     passwd = pwdEdit.getText().toString();
 
-                    SRpcBizApp.getInstance().getLoginServer().connect(CommonDef.host, CommonDef.port);
+                    SRpcBizApp.getInstance().getLoginServer().connect(CommonDef.LOGIN_SERVER_HOST, CommonDef.LOGIN_SERVER_PORT);
                 } catch (Exception e) {
                     Log.i(this.toString(), e.getMessage());
                 }
@@ -219,12 +246,6 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-//        String[] perms = {Manifest.permission.ACCESS_NETWORK_STATE};
-//        if (!EasyPermissions.hasPermissions(this, perms)) {
-//            EasyPermissions.requestPermissions(this, "Need permissions for camera & microphone", 0, perms);
-//        }
-
     }
 
     @Override

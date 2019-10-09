@@ -1,4 +1,4 @@
-package com.spirit.community.srpc.core;
+package com.spirit.community.srpc.core.loginserver;
 
 import android.util.Log;
 import java.util.List;
@@ -6,6 +6,9 @@ import com.spirit.community.common.RpcEventType;
 import com.spirit.community.protocol.thrift.common.HelloNotify;
 import com.spirit.community.protocol.thrift.login.ClientLoginRes;
 import com.spirit.community.protocol.thrift.login.UserRegisterRes;
+import com.spirit.community.srpc.core.Encrypt;
+import com.spirit.community.srpc.core.SRpcBizApp;
+import com.spirit.community.srpc.core.State;
 import com.spirit.tba.Exception.TbaException;
 import com.spirit.tba.core.TbaAes;
 import com.spirit.tba.core.TbaEvent;
@@ -60,31 +63,20 @@ public class TbaProtocolDecoder extends ByteToMessageDecoder {
             TsRpcHead header = parser.Head();
 
             try {
-                switch (header.GetType()) {
-
-                    case RpcEventType.MT_HELLO_NOTIFY: {
-                        TsRpcProtocolFactory<HelloNotify> protocol = new TsRpcProtocolFactory<HelloNotify>(msg);
-                        HelloNotify notify = protocol.Decode(HelloNotify.class);
-                        SRpcBizApp.getInstance().getLoginServer().setServerRandom(notify.getServer_random());
-                        out.add(new TbaEvent(header, notify));
-                    }
-                    break;
-
-                    case RpcEventType.MT_CLIENT_LOGIN_RES: {
-                        TsRpcProtocolFactory<ClientLoginRes> protocol = new TsRpcProtocolFactory<ClientLoginRes>(msg);
-                        ClientLoginRes res = protocol.Decode(ClientLoginRes.class);
-                        out.add(new TbaEvent(header, res));
-                    }
-                    break;
-
-                    case RpcEventType.MT_CLIENT_REGISTER_RES: {
-                        TsRpcProtocolFactory<UserRegisterRes> protocol = new TsRpcProtocolFactory<UserRegisterRes>(msg);
-                        out.add(new TbaEvent(header, protocol.Decode(UserRegisterRes.class)));
-                    }
-                    break;
-
-                    default:
-                        break;
+                if (header.GetType() == RpcEventType.MT_HELLO_NOTIFY) {
+                    TsRpcProtocolFactory<HelloNotify> protocol = new TsRpcProtocolFactory<HelloNotify>(msg);
+                    HelloNotify notify = protocol.Decode(HelloNotify.class);
+                    SRpcBizApp.getInstance().getLoginServer().setServerRandom(notify.getServer_random());
+                    out.add(new TbaEvent(header, notify));
+                }
+                else if (header.GetType() ==  RpcEventType.MT_CLIENT_LOGIN_RES) {
+                    TsRpcProtocolFactory<ClientLoginRes> protocol = new TsRpcProtocolFactory<ClientLoginRes>(msg);
+                    ClientLoginRes res = protocol.Decode(ClientLoginRes.class);
+                    out.add(new TbaEvent(header, res));
+                }
+                else if (header.GetType() ==  RpcEventType.MT_CLIENT_REGISTER_RES) {
+                    TsRpcProtocolFactory<UserRegisterRes> protocol = new TsRpcProtocolFactory<UserRegisterRes>(msg);
+                    out.add(new TbaEvent(header, protocol.Decode(UserRegisterRes.class)));
                 }
             }
             catch(TbaException e){

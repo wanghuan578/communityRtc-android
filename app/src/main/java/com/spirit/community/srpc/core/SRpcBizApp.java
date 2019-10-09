@@ -1,6 +1,8 @@
 package com.spirit.community.srpc.core;
 
+import com.spirit.community.srpc.core.loginserver.LoginServer;
 import com.spirit.community.srpc.core.observer.Observer;
+import com.spirit.community.srpc.core.roomgate.RoomGate;
 import com.spirit.tba.core.TbaEvent;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -9,6 +11,7 @@ public class SRpcBizApp {
     private Observer.EventListener listener = null;
     private AtomicInteger state = null;
     private LoginServer loginServer = null;
+    private RoomGate roomGate = null;
 
 
     private static SRpcBizApp _instance = null;
@@ -25,6 +28,7 @@ public class SRpcBizApp {
     public void init() {
         state = new AtomicInteger();
         loginServer = new LoginServer();
+        roomGate = new RoomGate();
     }
 
     private SRpcBizApp() {
@@ -33,6 +37,10 @@ public class SRpcBizApp {
 
     public LoginServer getLoginServer() {
         return loginServer;
+    }
+
+    public RoomGate getRoomGate() {
+        return roomGate;
     }
 
     public void register(Observer.EventListener listener) {
@@ -70,6 +78,11 @@ public class SRpcBizApp {
             case State.LOGIN_SERVER_LOGIN: {
                 loginServer.putEvent(ev);
             }
+                break;
+
+            case State.ROOMGATE_CONNECTING:
+            case State.ROOMGATE_CONNECTED:
+                roomGate.putEvent(ev);
                 break;
 
             default:

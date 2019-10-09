@@ -50,56 +50,47 @@ public class RegisterActivity extends AppCompatActivity {
         SRpcBizApp.getInstance().register(new Observer.EventListener() {
             @Override
             public void onEvent(int type, Object msg) {
-                switch (type) {
 
-                    case RpcEventType.MT_HELLO_NOTIFY: {
+                if (type == RpcEventType.MT_HELLO_NOTIFY) {
+                    UserRegisterReq req = new UserRegisterReq();
+                    req.user_name = usernameEdit.getText().toString();
+                    req.nick_name = nickNameEdit.getText().toString();
+                    req.password = passwd = passwdEdit.getText().toString();
+                    req.invitation_code = invitationCodeEdit.getText().toString();
+                    req.gender = 0;
+                    req.identity_card = identityCardEdit.getText().toString();
+                    req.cellphone = cellphoneEdit.getText().toString();
+                    req.email = emailEdit.getText().toString();
 
-                        UserRegisterReq req = new UserRegisterReq();
-                        req.user_name = usernameEdit.getText().toString();
-                        req.nick_name = nickNameEdit.getText().toString();
-                        req.password = passwd = passwdEdit.getText().toString();
-                        req.invitation_code = invitationCodeEdit.getText().toString();
-                        req.gender = 0;
-                        req.identity_card = identityCardEdit.getText().toString();
-                        req.cellphone = cellphoneEdit.getText().toString();
-                        req.email = emailEdit.getText().toString();
+                    TsRpcHead head = new TsRpcHead(RpcEventType.MT_CLIENT_REGISTER_REQ);
+                    SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 1024, false));
+                }
+                else if (type ==  RpcEventType.MT_CLIENT_REGISTER_RES) {
+                    UserRegisterRes res = (UserRegisterRes) msg;
 
-                        TsRpcHead head = new TsRpcHead(RpcEventType.MT_CLIENT_REGISTER_REQ);
-                        SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 1024, false));
+                    Log.i(this.toString(), "UserRegisterRes: " + JSON.toJSONString(res, true));
+
+                    SRpcBizApp.getInstance().getLoginServer().close();
+
+                    if (res.error_code == 0) {
+                        Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                        intent.putExtra("uid", res.getUser_id());
+                        intent.putExtra("passwd", passwd);
+                        startActivity(intent);
                     }
-                        break;
+                    else {
+                        registerBtn.post(new Runnable(){
+                            @Override
+                            public void run() {
+                                registerBtn.setTextColor(0xFFFFFFFF);
+                                registerBtn.setEnabled(true);
+                            }
+                        });
 
-                    case RpcEventType.MT_CLIENT_REGISTER_RES: {
-                        UserRegisterRes res = (UserRegisterRes) msg;
-
-                        Log.i(this.toString(), "UserRegisterRes: " + JSON.toJSONString(res, true));
-
-                        SRpcBizApp.getInstance().getLoginServer().close();
-
-                        if (res.error_code == 0) {
-                            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                            intent.putExtra("uid", res.getUser_id());
-                            intent.putExtra("passwd", passwd);
-                            startActivity(intent);
-                        }
-                        else {
-                            registerBtn.post(new Runnable(){
-                                @Override
-                                public void run() {
-                                    registerBtn.setTextColor(0xFFFFFFFF);
-                                    registerBtn.setEnabled(true);
-                                }
-                            });
-
-                            Looper.prepare();
-                            Toast.makeText(RegisterActivity.this, res.error_text, Toast.LENGTH_SHORT).show();
-                            Looper.loop();
-                        }
+                        Looper.prepare();
+                        Toast.makeText(RegisterActivity.this, res.error_text, Toast.LENGTH_SHORT).show();
+                        Looper.loop();
                     }
-                    break;
-
-                    default:
-                        break;
                 }
             }
         });
@@ -133,7 +124,7 @@ public class RegisterActivity extends AppCompatActivity {
                 registerBtn.setEnabled(false);
 
                 try {
-                    SRpcBizApp.getInstance().getLoginServer().connect(CommonDef.host, CommonDef.port);
+                    SRpcBizApp.getInstance().getLoginServer().connect(CommonDef.LOGIN_SERVER_HOST, CommonDef.LOGIN_SERVER_PORT);
                 }
                 catch (Exception e) {
                     Log.e(this.toString(), e.getMessage());
