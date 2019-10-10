@@ -126,13 +126,9 @@ public class LoginActivity extends AppCompatActivity {
                             checksum.client_random = clientRandom;
                             try {
                                 byte[] data = new TbaToolsKit<ClientPasswordLoginReqChecksum>().serialize(checksum, 1024);
-                                int srclen = data.length;
-                                Log.i(this.toString(),"srclen: " + srclen);
+                                //int srclen = data.length;
+                                //Log.i(this.toString(),"srclen: " + srclen);
                                 req.check_sum = new String(data, "ISO8859-1");
-                                int destlen = req.check_sum.getBytes("ISO8859-1").length;
-
-//                                ClientPasswordLoginReqChecksum check = new TbaToolsKit<ClientPasswordLoginReqChecksum>().deserialize(req.check_sum.getBytes("ISO8859-1"), ClientPasswordLoginReqChecksum.class);
-//                                Log.i(this.toString(),"ClientPasswordLoginReqChecksum: " + JSON.toJSONString(check, true));
                             }
                             catch (TbaException | UnsupportedEncodingException e) {
                                 Log.e(this.toString(), e.getMessage());
@@ -193,7 +189,7 @@ public class LoginActivity extends AppCompatActivity {
                         CommonRes res = (CommonRes) msg;
                         if (res.error_code == 0) {
                             SRpcBizApp.getInstance().setState(State.ROOMGATE_CONNECTED);
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            Intent intent = new Intent(LoginActivity.this, ChatActivity.class);
                             startActivity(intent);
                         }
                     }
