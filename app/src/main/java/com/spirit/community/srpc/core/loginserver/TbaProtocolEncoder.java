@@ -6,7 +6,7 @@ import com.spirit.community.srpc.core.State;
 import com.spirit.tba.core.EncryptType;
 import com.spirit.tba.core.TbaAes;
 import com.spirit.tba.core.TbaEvent;
-import com.spirit.tba.core.TsHeadMagic;
+import com.spirit.tba.core.TsMagic;
 import com.spirit.tba.core.TsRpcByteBuffer;
 import com.spirit.tba.core.TsRpcHead;
 import com.spirit.tba.core.TsRpcProtocolFactory;
@@ -35,8 +35,8 @@ public class TbaProtocolEncoder extends MessageToByteEncoder<Object> {
 			Log.i(this.toString(),"encrypt key: " + key);
 			String encrypt = TbaAes.encode(new String(buf, "ISO8859-1"), String.valueOf(key));
 
-			TsRpcByteBuffer byteBuff = new TsRpcByteBuffer(encrypt.length() + TsHeadMagic.MAGIC_OFFSET);
-			byteBuff.WriteI32(encrypt.length() + TsHeadMagic.MAGIC_OFFSET);
+			TsRpcByteBuffer byteBuff = new TsRpcByteBuffer(encrypt.length() + TsMagic.MAGIC_OFFSET);
+			byteBuff.WriteI32(encrypt.length() + TsMagic.MAGIC_OFFSET);
 			byteBuff.WriteI16(ev.getEncryptType());
 			byteBuff.copy(encrypt.getBytes());
 			byte [] o = byteBuff.GetBytes();

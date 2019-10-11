@@ -13,7 +13,7 @@ import com.spirit.tba.Exception.TbaException;
 import com.spirit.tba.core.EncryptType;
 import com.spirit.tba.core.TbaAes;
 import com.spirit.tba.core.TbaEvent;
-import com.spirit.tba.core.TsHeadMagic;
+import com.spirit.tba.core.TsMagic;
 import com.spirit.tba.core.TsRpcByteBuffer;
 import com.spirit.tba.core.TsRpcEventParser;
 import com.spirit.tba.core.TsRpcHead;
@@ -38,8 +38,8 @@ public class TbaProtocolDecoder extends ByteToMessageDecoder {
             TsRpcByteBuffer msg = null;
 
             if(flag == EncryptType.WHOLE) {
-                byte[] encrypt = new byte[msg_len - TsHeadMagic.MAGIC_OFFSET];
-                for (int i = 0; i < msg_len - TsHeadMagic.MAGIC_OFFSET; i++) {
+                byte[] encrypt = new byte[msg_len - TsMagic.MAGIC_OFFSET];
+                for (int i = 0; i < msg_len - TsMagic.MAGIC_OFFSET; i++) {
                     encrypt[i] = in.readByte();
                 }
 
@@ -56,7 +56,7 @@ public class TbaProtocolDecoder extends ByteToMessageDecoder {
                 msg = new TsRpcByteBuffer(msg_len);
                 msg.WriteI32(msg_len);
                 msg.WriteI16(flag);
-                for (int i = 0; i < msg_len - TsHeadMagic.MAGIC_OFFSET; i++) {
+                for (int i = 0; i < msg_len - TsMagic.MAGIC_OFFSET; i++) {
                     msg.WriteByte(in.readByte());
                 }
             }
