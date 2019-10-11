@@ -3,8 +3,10 @@ package com.spirit.community.srpc.core.loginserver;
 import android.util.Log;
 import com.spirit.community.srpc.core.SRpcBizApp;
 import com.spirit.community.srpc.core.State;
+import com.spirit.tba.core.EncryptType;
 import com.spirit.tba.core.TbaAes;
 import com.spirit.tba.core.TbaEvent;
+import com.spirit.tba.core.TsHeadMagic;
 import com.spirit.tba.core.TsRpcByteBuffer;
 import com.spirit.tba.core.TsRpcHead;
 import com.spirit.tba.core.TsRpcProtocolFactory;
@@ -20,7 +22,7 @@ public class TbaProtocolEncoder extends MessageToByteEncoder<Object> {
 
 		TbaEvent ev = (TbaEvent) msg;
 
-		if (ev.isEncrypt()) {
+		if (ev.getEncryptType() == EncryptType.WHOLE) {
 			TsRpcHead head = ev.getHead();
 			TsRpcProtocolFactory protocol = new TsRpcProtocolFactory<TBase>((TBase)ev.getBody(), head, ev.getLength());
 			byte[] buf = protocol.Encode().OutStream().GetBytes();
@@ -33,9 +35,9 @@ public class TbaProtocolEncoder extends MessageToByteEncoder<Object> {
 			Log.i(this.toString(),"encrypt key: " + key);
 			String encrypt = TbaAes.encode(new String(buf, "ISO8859-1"), String.valueOf(key));
 
-			TsRpcByteBuffer byteBuff = new TsRpcByteBuffer(encrypt.length() + 6);
-			byteBuff.WriteI32(encrypt.length() + 6);
-			byteBuff.WriteI16((short)1);
+			TsRpcByteBuffer byteBuff = new TsRpcByteBuffer(encrypt.length() + TsHeadMagic.MAGIC_OFFSET);
+			byteBuff.WriteI32(encrypt.length() + TsHeadMagic.MAGIC_OFFSET);
+			byteBuff.WriteI16(ev.getEncryptType());
 			byteBuff.copy(encrypt.getBytes());
 			byte [] o = byteBuff.GetBytes();
 			Log.i(this.toString(),"encrypt msg len: " + o.length);

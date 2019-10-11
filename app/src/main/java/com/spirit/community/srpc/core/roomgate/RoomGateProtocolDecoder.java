@@ -11,8 +11,10 @@ import com.spirit.community.srpc.core.Encrypt;
 import com.spirit.community.srpc.core.SRpcBizApp;
 import com.spirit.community.srpc.core.State;
 import com.spirit.tba.Exception.TbaException;
+import com.spirit.tba.core.EncryptType;
 import com.spirit.tba.core.TbaAes;
 import com.spirit.tba.core.TbaEvent;
+import com.spirit.tba.core.TsHeadMagic;
 import com.spirit.tba.core.TsRpcByteBuffer;
 import com.spirit.tba.core.TsRpcEventParser;
 import com.spirit.tba.core.TsRpcHead;
@@ -39,9 +41,9 @@ public class RoomGateProtocolDecoder extends ByteToMessageDecoder {
 
             TsRpcByteBuffer msg = null;
 
-            if(flag == Encrypt.TYPE_ENABLE) {
-                byte[] encrypt = new byte[msg_len - 6];
-                for (int i = 0; i < msg_len - 6; i++) {
+            if(flag == EncryptType.WHOLE) {
+                byte[] encrypt = new byte[msg_len - TsHeadMagic.MAGIC_OFFSET];
+                for (int i = 0; i < msg_len - TsHeadMagic.MAGIC_OFFSET; i++) {
                     encrypt[i] = in.readByte();
                 }
 
@@ -52,11 +54,14 @@ public class RoomGateProtocolDecoder extends ByteToMessageDecoder {
                 byte[] msg00 = original.getBytes("ISO8859-1");
                 msg = new TsRpcByteBuffer(msg00, msg00.length);
             }
+            else if(flag == EncryptType.BODY) {
+                Log.i(this.toString(),"chat notify");
+            }
             else {
                 msg = new TsRpcByteBuffer(msg_len);
                 msg.WriteI32(msg_len);
                 msg.WriteI16(flag);
-                for (int i = 0; i < msg_len - 6; i++) {
+                for (int i = 0; i < msg_len - TsHeadMagic.MAGIC_OFFSET; i++) {
                     msg.WriteByte(in.readByte());
                 }
             }

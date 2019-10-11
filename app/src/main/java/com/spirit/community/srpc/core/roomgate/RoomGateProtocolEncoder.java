@@ -2,15 +2,24 @@ package com.spirit.community.srpc.core.roomgate;
 
 import android.util.Log;
 
+import com.spirit.community.protocol.thrift.roomgate.ChatReq;
+import com.spirit.community.protocol.thrift.roomgate.ConnectChecksum;
 import com.spirit.community.srpc.core.SRpcBizApp;
 import com.spirit.community.srpc.core.State;
+import com.spirit.tba.Exception.TbaException;
+import com.spirit.tba.core.EncryptType;
 import com.spirit.tba.core.TbaAes;
 import com.spirit.tba.core.TbaEvent;
+import com.spirit.tba.core.TsHeadMagic;
 import com.spirit.tba.core.TsRpcByteBuffer;
 import com.spirit.tba.core.TsRpcHead;
 import com.spirit.tba.core.TsRpcProtocolFactory;
+import com.spirit.tba.tools.TbaHeadUtil;
+import com.spirit.tba.tools.TbaToolsKit;
 
 import org.apache.thrift.TBase;
+
+import java.io.UnsupportedEncodingException;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,37 +27,50 @@ import io.netty.handler.codec.MessageToByteEncoder;
 
 public class RoomGateProtocolEncoder extends MessageToByteEncoder<Object> {
 
-	private static final int ENCRYPT_PROTOCOL_OFFSET = 6;
-
 	@Override
 	protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
 
 		TbaEvent ev = (TbaEvent) msg;
 
-		if (ev.isEncrypt()) {
+		if (ev.getEncryptType() == EncryptType.WHOLE) {
 			TsRpcHead head = ev.getHead();
 			TsRpcProtocolFactory protocol = new TsRpcProtocolFactory<TBase>((TBase)ev.getBody(), head, ev.getLength());
 			byte[] buf = protocol.Encode().OutStream().GetBytes();
 
-			Long key = null;
-			if (SRpcBizApp.getInstance().getState() == State.LOGIN_SERVER_LOGIN) {
-				key = SRpcBizApp.getInstance().getLoginServer().getServerRandom();
-			}
-			else if (SRpcBizApp.getInstance().getState() >= State.ROOMGATE_CONNECTING) {
-				key = SRpcBizApp.getInstance().getRoomGate().getServerRandom();
-			}
+			Long key = SRpcBizApp.getInstance().getRoomGate().getServerRandom();
 
 			Log.i(this.toString(),"encrypt key: " + key);
 			String encrypt = TbaAes.encode(new String(buf, "ISO8859-1"), String.valueOf(key));
 
-			TsRpcByteBuffer byteBuff = new TsRpcByteBuffer(encrypt.length() + ENCRYPT_PROTOCOL_OFFSET);
-			byteBuff.WriteI32(encrypt.length() + ENCRYPT_PROTOCOL_OFFSET);
-			byteBuff.WriteI16((short)1);
-			//byteBuff.WriteI16(head.GetType());
+			TsRpcByteBuffer byteBuff = new TsRpcByteBuffer(encrypt.length() + TsHeadMagic.MAGIC_OFFSET);
+			byteBuff.WriteI32(encrypt.length() + TsHeadMagic.MAGIC_OFFSET);
+			byteBuff.WriteI16(ev.getEncryptType());
+
 			byteBuff.copy(encrypt.getBytes());
 			byte [] o = byteBuff.GetBytes();
 			Log.i(this.toString(),"encrypt msg len: " + o.length);
 			out.writeBytes(o, 0, o.length);
+		}
+		else if (ev.getEncryptType() == EncryptType.BODY) {
+
+			TsRpcHead head = ev.getHead();
+			head.SetFlag(ev.getEncryptType());
+
+			try {
+				byte[] data = new TbaToolsKit<TBase>().serialize((TBase) ev.getBody(), ev.getLength());
+				String key = String.valueOf(SRpcBizApp.getInstance().getRoomGate().getServerRandom());
+				Log.i(this.toString(),"encrypt key: " + key);
+				String encrypt = TbaAes.encode(new String(data, "ISO8859-1"), key);
+				int len = encrypt.length() + TbaHeadUtil.HEAD_SIZE;
+				TsRpcByteBuffer protocol = new TsRpcByteBuffer(len);
+				TbaHeadUtil.build(protocol, head, len);
+				protocol.copy(encrypt.getBytes());
+				byte [] o = protocol.GetBytes();
+				Log.i(this.toString(),"encrypt msg len: " + o.length);
+				out.writeBytes(o, 0, o.length);
+			} catch (TbaException e) {
+				Log.e(this.toString(), e.getMessage());
+			}
 		}
 		else {
 			TsRpcHead head = ev.getHead();

@@ -15,6 +15,7 @@ import com.spirit.community.control.ChatMsgViewAdapter;
 import com.spirit.community.protocol.thrift.roomgate.ChatReq;
 import com.spirit.community.srpc.core.SRpcBizApp;
 import com.spirit.community.srpc.core.State;
+import com.spirit.tba.core.EncryptType;
 import com.spirit.tba.core.TbaEvent;
 import com.spirit.tba.core.TsRpcHead;
 
@@ -132,7 +133,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             head.SetAttach2(s1);
             head.SetAttach3(d0);
             head.SetAttach4(d1);
-            SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 1024, true));
+            SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 1024, EncryptType.BODY));
         }
     }
 

@@ -17,6 +17,7 @@ import com.spirit.community.protocol.thrift.login.UserRegisterReq;
 import com.spirit.community.protocol.thrift.login.UserRegisterRes;
 import com.spirit.community.srpc.core.SRpcBizApp;
 import com.spirit.community.srpc.core.observer.Observer;
+import com.spirit.tba.core.EncryptType;
 import com.spirit.tba.core.TbaEvent;
 import com.spirit.tba.core.TsRpcHead;
 
@@ -63,7 +64,7 @@ public class RegisterActivity extends AppCompatActivity {
                     req.email = emailEdit.getText().toString();
 
                     TsRpcHead head = new TsRpcHead(RpcEventType.MT_CLIENT_REGISTER_REQ);
-                    SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 1024, false));
+                    SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 1024, EncryptType.DISABLE));
                 }
                 else if (type ==  RpcEventType.MT_CLIENT_REGISTER_RES) {
                     UserRegisterRes res = (UserRegisterRes) msg;

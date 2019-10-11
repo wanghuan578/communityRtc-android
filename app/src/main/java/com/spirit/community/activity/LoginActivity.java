@@ -31,6 +31,7 @@ import com.spirit.community.srpc.core.SRpcBizApp;
 import com.spirit.community.srpc.core.State;
 import com.spirit.community.srpc.core.observer.Observer;
 import com.spirit.tba.Exception.TbaException;
+import com.spirit.tba.core.EncryptType;
 import com.spirit.tba.core.TbaEvent;
 import com.spirit.tba.core.TsRpcHead;
 import com.spirit.tba.tools.TbaToolsKit;
@@ -106,7 +107,7 @@ public class LoginActivity extends AppCompatActivity {
                             }
 
                             TsRpcHead head = new TsRpcHead(RpcEventType.ROOMGATE_CONNECT_REQ);
-                            SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 512, true));
+                            SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 512, EncryptType.WHOLE));
                         }
                         else {
                             ClientPasswordLoginReq req = new ClientPasswordLoginReq();
@@ -139,7 +140,7 @@ public class LoginActivity extends AppCompatActivity {
 
                             TsRpcHead head = new TsRpcHead(RpcEventType.MT_CLIENT_PASSWORD_LOGIN_REQ);
                             SRpcBizApp.getInstance().setState(State.LOGIN_SERVER_LOGIN);
-                            SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 1024, true));
+                            SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 1024, EncryptType.WHOLE));
                         }
                     }
                     else if (type ==  RpcEventType.MT_CLIENT_LOGIN_RES) {
