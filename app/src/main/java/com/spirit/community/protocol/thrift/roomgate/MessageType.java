@@ -14,14 +14,11 @@ import org.apache.thrift.TEnum;
 public enum MessageType implements org.apache.thrift.TEnum {
   MT_CONNECT_REQ(600),
   MT_CONNECT_RES(601),
-  MT_GET_ROOMLIST_REQ(602),
-  MT_GET_ROOMLIST_RES(603),
-  MT_UPDATE_ROOMLIST_NOTIFY(604),
-  UPDATE_USERINFO_REQ(605),
-  UPDATE_USERINFO_RES(606),
-  MT_CHAT_REQ(607),
-  MT_CHAT_RES(608),
-  MT_CHAT_NOTIFY(609);
+  MT_ROOMGATE_CONNECT_REQ(602),
+  MT_ROOMGATE_CONNECT_RES(603),
+  MT_CHAT_REQ(604),
+  MT_CHAT_RES(605),
+  MT_CHAT_NOTIFY(606);
 
   private final int value;
 
@@ -47,20 +44,14 @@ public enum MessageType implements org.apache.thrift.TEnum {
       case 601:
         return MT_CONNECT_RES;
       case 602:
-        return MT_GET_ROOMLIST_REQ;
+        return MT_ROOMGATE_CONNECT_REQ;
       case 603:
-        return MT_GET_ROOMLIST_RES;
+        return MT_ROOMGATE_CONNECT_RES;
       case 604:
-        return MT_UPDATE_ROOMLIST_NOTIFY;
-      case 605:
-        return UPDATE_USERINFO_REQ;
-      case 606:
-        return UPDATE_USERINFO_RES;
-      case 607:
         return MT_CHAT_REQ;
-      case 608:
+      case 605:
         return MT_CHAT_RES;
-      case 609:
+      case 606:
         return MT_CHAT_NOTIFY;
       default:
         return null;
