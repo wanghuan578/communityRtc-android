@@ -43,10 +43,10 @@ public class TbaProtocolDecoder extends ByteToMessageDecoder {
                     encrypt[i] = in.readByte();
                 }
 
-                Long key = null;
-                if (SRpcBizApp.getInstance().getState() == State.LOGIN_SERVER_LOGIN) {
-                    key = SRpcBizApp.getInstance().getLoginServer().getServerRandom();
-                }
+                //Long key = null;
+                //if (SRpcBizApp.getInstance().getState() == State.LOGIN_SERVER_LOGIN) {
+                Long key = SRpcBizApp.getInstance().getLoginServer().getServerRandom();
+                //}
                 Log.i(this.toString(),"decrypt key: " + key);
                 String original = TbaAes.decode(new String(encrypt, "utf-8"), String.valueOf(key));
                 byte[] msg00 = original.getBytes("ISO8859-1");
