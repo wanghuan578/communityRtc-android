@@ -24,10 +24,13 @@ import com.spirit.community.srpc.core.observer.Observer;
 import com.spirit.tba.core.EncryptType;
 import com.spirit.tba.core.TbaEvent;
 import com.spirit.tba.core.TsRpcHead;
+import com.spirit.tba.tools.TbaToolsKit;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ChatActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -41,9 +44,13 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
     private ListView mListView;
     //聊天的内容
     private final List<ChatMsgEntity> mDataArrays;
+    private final Set<Long> userTuple;
 
     public ChatActivity() {
         mDataArrays = new ArrayList<ChatMsgEntity>();
+        userTuple = new HashSet<Long>();
+        userTuple.add(100103l);
+        userTuple.add(100099l);
     }
 
     @Override
@@ -114,21 +121,32 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             mEditTextContent.setText("");
             mListView.setSelection(mListView.getCount() - 1);
 
-            long suid = 100103l;
-            long duid = 100099l;
-            int s0 = (int) (suid & 0x000000ffffffffL);
-            int s1 = (int) (suid >> 32);
-            int d0 = (int) (duid & 0x000000ffffffffL);
-            int d1 = (int) (duid >> 32);
+            long suid = 0;
+            long duid = 0;
+            for(Long uid : userTuple) {
+                if (uid.longValue() == SRpcBizApp.getInstance().getUserid().longValue()) {
+                    suid = uid;
+                }
+                else {
+                    duid = uid;
+                }
+            }
+
+            int [] src = TbaToolsKit.long2int(suid);
+            int [] dest = TbaToolsKit.long2int(duid);
+//            int s0 = (int) (suid & 0x000000ffffffffL);
+//            int s1 = (int) (suid >> 32);
+//            int d0 = (int) (duid & 0x000000ffffffffL);
+//            int d1 = (int) (duid >> 32);
             ChatReq req = new ChatReq();
             req.from_nick_name = nickName;
             req.chat_text = contString;
             req.chat_time = System.currentTimeMillis();
             TsRpcHead head = new TsRpcHead(RpcEventType.ROOMGATE_CHAT_REQ);
-            head.SetAttach1(s0);
-            head.SetAttach2(s1);
-            head.SetAttach3(d0);
-            head.SetAttach4(d1);
+            head.SetAttach1(src[0]);
+            head.SetAttach2(src[1]);
+            head.SetAttach3(dest[0]);
+            head.SetAttach4(dest[1]);
             SRpcBizApp.getInstance().putEvent(new TbaEvent(head, req, 512, EncryptType.BODY));
         }
     }

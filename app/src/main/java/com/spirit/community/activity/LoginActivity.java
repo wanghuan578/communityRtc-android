@@ -150,6 +150,7 @@ public class LoginActivity extends AppCompatActivity {
                         SRpcBizApp.getInstance().getLoginServer().close();
 
                         if (res.error_code == 0) {
+                            SRpcBizApp.getInstance().setUserid(Long.valueOf(uid));
                             try {
                                 SessionTicket sessionTicket = new TbaToolsKit<SessionTicket>().deserialize(res.session_ticket.getBytes("ISO8859-1"), SessionTicket.class);
                                 SignalClient.getInstance().setIceServer(sessionTicket.ice_server);

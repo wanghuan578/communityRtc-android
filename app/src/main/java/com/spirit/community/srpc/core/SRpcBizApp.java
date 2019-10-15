@@ -12,6 +12,7 @@ public class SRpcBizApp {
     private AtomicInteger state = null;
     private LoginServer loginServer = null;
     private RoomGate roomGate = null;
+    private Long userid;
 
 
     private static SRpcBizApp _instance = null;
@@ -92,4 +93,11 @@ public class SRpcBizApp {
 
     }
 
+    public Long getUserid() {
+        return userid;
+    }
+
+    public void setUserid(Long userid) {
+        this.userid = userid;
+    }
 }
