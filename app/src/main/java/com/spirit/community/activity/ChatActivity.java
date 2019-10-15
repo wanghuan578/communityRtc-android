@@ -54,7 +54,6 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
         initView();
         initData();
         SRpcBizApp.getInstance().register(new Observer.EventListener() {
-
             @Override
             public void onEvent(int type, Object msg) {
                 if (type == RpcEventType.ROOMGATE_CHAT_NOTIFY) {
@@ -67,10 +66,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
                     entity.setMsgType(true);
                     entity.setText(notify.chat_text);
                     mDataArrays.add(entity);
-                    //Looper.prepare();
-                    //mAdapter.notifyDataSetChanged();
-                    //mListView.setSelection(mListView.getCount() - 1);
-                    //Looper.loop();
+                    mAdapter.notifyDataSetChanged();
                 }
             }
         });
@@ -119,7 +115,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
             mListView.setSelection(mListView.getCount() - 1);
 
             long suid = 100103l;
-            long duid = 100103l;
+            long duid = 100099l;
             int s0 = (int) (suid & 0x000000ffffffffL);
             int s1 = (int) (suid >> 32);
             int d0 = (int) (duid & 0x000000ffffffffL);

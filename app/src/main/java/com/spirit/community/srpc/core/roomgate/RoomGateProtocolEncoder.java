@@ -2,6 +2,7 @@ package com.spirit.community.srpc.core.roomgate;
 
 import android.util.Log;
 
+import com.spirit.community.common.RpcEventType;
 import com.spirit.community.protocol.thrift.roomgate.ChatReq;
 import com.spirit.community.protocol.thrift.roomgate.ConnectChecksum;
 import com.spirit.community.srpc.core.SRpcBizApp;
@@ -55,10 +56,17 @@ public class RoomGateProtocolEncoder extends MessageToByteEncoder<Object> {
 
 			TsRpcHead head = ev.getHead();
 			head.SetFlag(ev.getEncryptType());
-
+			String key = null;
 			try {
 				byte[] data = new TbaToolsKit<TBase>().serialize((TBase) ev.getBody(), ev.getLength());
-				String key = String.valueOf(SRpcBizApp.getInstance().getRoomGate().getServerRandom());
+				if (head.GetType() == RpcEventType.ROOMGATE_CHAT_REQ) {
+					key = String.valueOf(TbaToolsKit.int2long(new int[] {head.GetAttach1(), head.GetAttach2()}));
+					Log.i(this.toString(),"chat encrypt key: " + key);
+				}
+				else {
+					key = String.valueOf(SRpcBizApp.getInstance().getRoomGate().getServerRandom());
+				}
+
 				Log.i(this.toString(),"encrypt key: " + key);
 				String encrypt = TbaAes.encode(new String(data, "ISO8859-1"), key);
 				int len = encrypt.length() + TbaHeadUtil.HEAD_SIZE;

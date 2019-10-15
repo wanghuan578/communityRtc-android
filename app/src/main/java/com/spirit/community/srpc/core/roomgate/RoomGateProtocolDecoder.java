@@ -77,8 +77,10 @@ public class RoomGateProtocolDecoder extends ByteToMessageDecoder {
                     for (int i = 0; i < msg_len - TbaHeadUtil.HEAD_SIZE; i++) {
                         encryptData[i] = in.readByte();
                     }
-                    Long serverRandom = SRpcBizApp.getInstance().getRoomGate().getServerRandom();
-                    String original = TbaAes.decode(new String(encryptData, "utf-8"), String.valueOf(serverRandom));
+                    Long key = TbaToolsKit.int2long(new int[] {header.GetAttach1(), header.GetAttach2()});
+                    Log.i(this.toString(),"chat decrypt key: " + key);
+                    //Long serverRandom = SRpcBizApp.getInstance().getRoomGate().getServerRandom();
+                    String original = TbaAes.decode(new String(encryptData, "utf-8"), String.valueOf(key));
                     ChatReq req = new TbaToolsKit<ChatReq>().deserialize(original.getBytes("ISO8859-1"), ChatReq.class);
                     out.add(new TbaEvent(header, req));
                     return;
