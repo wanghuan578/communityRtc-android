@@ -8,6 +8,7 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "3.0"
+        multiDexEnabled true
     }
     android.applicationVariants.all {
         variant ->
@@ -55,6 +56,10 @@ dependencies {
     implementation files('libs/netty-all-4.1.38.Final.jar')
     implementation files('libs/android-logging-log4j-1.0.3.jar')
     implementation files('libs/commons-codec-1.11.jar')
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation files('libs/pinyin4j-2.5.0.jar')
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation 'com.android.support:multidex:1.0.3'
 }
 
 repositories {

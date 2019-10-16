@@ -134,10 +134,7 @@ public class ChatActivity extends AppCompatActivity implements View.OnClickListe
 
             int [] src = TbaToolsKit.long2int(suid);
             int [] dest = TbaToolsKit.long2int(duid);
-//            int s0 = (int) (suid & 0x000000ffffffffL);
-//            int s1 = (int) (suid >> 32);
-//            int d0 = (int) (duid & 0x000000ffffffffL);
-//            int d1 = (int) (duid >> 32);
+
             ChatReq req = new ChatReq();
             req.from_nick_name = nickName;
             req.chat_text = contString;

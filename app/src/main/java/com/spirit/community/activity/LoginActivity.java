@@ -191,7 +191,8 @@ public class LoginActivity extends AppCompatActivity {
                         CommonRes res = (CommonRes) msg;
                         if (res.error_code == 0) {
                             SRpcBizApp.getInstance().setState(State.ROOMGATE_CONNECTED);
-                            Intent intent = new Intent(LoginActivity.this, ChatActivity.class);
+                            Intent intent = new Intent(LoginActivity.this, FriendsListActivity.class);
+                            //Intent intent = new Intent(LoginActivity.this, ChatActivity.class);
                             startActivity(intent);
                         }
                     }
