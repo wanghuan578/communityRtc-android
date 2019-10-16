@@ -31,7 +31,7 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     public interface OnItemLongClickListener {
-        void onClick(int position);
+        void onClick(int position, UserInfo userInfo);
     }
 
     private OnItemLongClickListener onItemLongClickListener;
@@ -43,11 +43,8 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private Context context;
     private LayoutInflater mLayoutInflater;
     private List<UserInfo> userList;
-    private List<Contact> resultList; // 最终结果（包含分组的字母）
-    //private String[] mContactNames; // 联系人名称字符串数组
-    //private List<String> pinyinUserist; // 联系人名称List（转换成拼音）
-    //private List<Contact> resultList; // 最终结果（包含分组的字母）
-    private List<String> characterList; // 字母List
+    private List<Contact> resultList;
+    private List<String> characterList;
 
     public enum ITEM_TYPE {
         ITEM_TYPE_CHARACTER,
@@ -58,71 +55,44 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.context = context;
         mLayoutInflater = LayoutInflater.from(context);
         this.userList = userList;
+        resultList = new ArrayList<>();
+        characterList = new ArrayList<>();
 
         before();
     }
 
     private void before() {
 
-        //pinyinUserist = new ArrayList<>();
-        //Map<String, String> map = new HashMap<>();
-
         for (UserInfo user : userList) {
             String pinyin = Utils.getPingYin(user.getName());
             user.setPinyin(pinyin);
         }
 
-//        for (int i = 0; i < mContactNames.length; i++) {
-//            String pinyin = Utils.getPingYin(mContactNames[i]);
-//            map.put(pinyin, mContactNames[i]);
-//            pinyinUserist.add(pinyin);
-//        }
         Collections.sort(userList, new ContactComparator());
-
-        resultList = new ArrayList<>();
-        characterList = new ArrayList<>();
 
         for (UserInfo user : userList) {
 
             String name = user.getName();
+            String pinyin = user.getPinyin();
+
             Log.i(this.toString(),"name: " + name);
-            String character = (name.charAt(0) + "").toUpperCase(Locale.ENGLISH);
+            String character = (pinyin.charAt(0) + "").toUpperCase(Locale.ENGLISH);
 
             if (!characterList.contains(character)) {
                 if (character.hashCode() >= "A".hashCode() && character.hashCode() <= "Z".hashCode()) { // 是字母
                     characterList.add(character);
-                    resultList.add(new Contact(character, ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
+                    resultList.add(new Contact(character, ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal(), null));
                 }
                 else {
                     if (!characterList.contains("#")) {
                         characterList.add("#");
-                        resultList.add(new Contact("#", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
+                        resultList.add(new Contact("#", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal(), null));
                     }
                 }
             }
 
-            resultList.add(new Contact(name, ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
+            resultList.add(new Contact(name, ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal(), user));
         }
-
-//        for (int i = 0; i < pinyinUserist.size(); i++) {
-//
-//            String name = pinyinUserist.get(i);
-//            String character = (name.charAt(0) + "").toUpperCase(Locale.ENGLISH);
-//
-//            if (!characterList.contains(character)) {
-//                if (character.hashCode() >= "A".hashCode() && character.hashCode() <= "Z".hashCode()) { // 是字母
-//                    characterList.add(character);
-//                    resultList.add(new Contact(character, ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
-//                } else {
-//                    if (!characterList.contains("#")) {
-//                        characterList.add("#");
-//                        resultList.add(new Contact("#", ITEM_TYPE.ITEM_TYPE_CHARACTER.ordinal()));
-//                    }
-//                }
-//            }
-//
-//            resultList.add(new Contact(map.get(name), ITEM_TYPE.ITEM_TYPE_CONTACT.ordinal()));
-//        }
     }
 
     @Override
@@ -146,7 +116,7 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             @Override
             public void onClick(View v) {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onClick(position, null);
+                    onItemClickListener.onClick(position, resultList.get(position).getUserInfo());
                 }
             }
         });
@@ -155,7 +125,7 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             @Override
             public boolean onLongClick(View v) {
                 if (onItemLongClickListener != null) {
-                    onItemLongClickListener.onClick(position);
+                    onItemLongClickListener.onClick(position, resultList.get(position).getUserInfo());
                 }
                 return true;
             }
@@ -177,7 +147,6 @@ public class ContactAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         CharacterHolder(View view) {
             super(view);
-
             mTextView = (TextView) view.findViewById(R.id.character);
         }
     }

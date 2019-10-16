@@ -3,17 +3,14 @@ package com.spirit.community.activity;
 import android.support.multidex.MultiDex;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-//import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
-
 import com.spirit.community.control.ContactAdapter;
 import com.spirit.community.control.DividerItemDecoration;
 import com.spirit.community.control.LetterView;
 import com.spirit.community.control.UserInfo;
 import com.spirit.tba.tools.TbaToolsKit;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -67,14 +64,14 @@ public class FriendsListActivity extends AppCompatActivity {
         userListAdapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position, UserInfo userInfo) {
-                Toast.makeText(FriendsListActivity.this, "click " + position, Toast.LENGTH_SHORT).show();
+                Toast.makeText(FriendsListActivity.this, userInfo.getName() + " clicked" + position, Toast.LENGTH_SHORT).show();
             }
         });
 
         userListAdapter.setOnItemLongClickListener(new ContactAdapter.OnItemLongClickListener() {
             @Override
-            public void onClick(int position) {
-                Toast.makeText(FriendsListActivity.this, "long click " + position, Toast.LENGTH_SHORT).show();
+            public void onClick(int position, UserInfo userInfo) {
+                Toast.makeText(FriendsListActivity.this, userInfo.getName() +  " long click" + position, Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -6,10 +6,20 @@ public class Contact implements Serializable {
 
     private String name;
     private int type;
+    private UserInfo userInfo;
 
-    public Contact(String name, int type) {
+    public Contact(String name, int type, UserInfo userInfo) {
         this.name = name;
         this.type = type;
+        this.userInfo = userInfo;
+    }
+
+    public UserInfo getUserInfo() {
+        return userInfo;
+    }
+
+    public void setUserInfo(UserInfo userInfo) {
+        this.userInfo = userInfo;
     }
 
     public String getName() {
