@@ -1,16 +1,23 @@
 package com.spirit.community.activity;
 
+import android.content.Intent;
 import android.support.multidex.MultiDex;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
+
+
 import com.spirit.community.control.ContactAdapter;
 import com.spirit.community.control.DividerItemDecoration;
 import com.spirit.community.control.LetterView;
 import com.spirit.community.control.UserInfo;
 import com.spirit.tba.tools.TbaToolsKit;
+
+import org.json.JSONArray;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,6 +28,7 @@ public class FriendsListActivity extends AppCompatActivity {
     private LinearLayoutManager layoutManager;
     private LetterView letterView;
     private ContactAdapter userListAdapter;
+    private UserInfo self;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +73,14 @@ public class FriendsListActivity extends AppCompatActivity {
             @Override
             public void onClick(int position, UserInfo userInfo) {
                 Toast.makeText(FriendsListActivity.this, userInfo.getName() + " clicked" + position, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(FriendsListActivity.this, ChatActivity.class);
+                self = new UserInfo();
+                List<UserInfo> users = new ArrayList<>();
+                users.add(self);
+                users.add(userInfo);
+                JSONArray jsonArray = new JSONArray(users);
+                intent.putExtra("users", jsonArray.toString());
+                startActivity(intent);
             }
         });
 
@@ -72,6 +88,9 @@ public class FriendsListActivity extends AppCompatActivity {
             @Override
             public void onClick(int position, UserInfo userInfo) {
                 Toast.makeText(FriendsListActivity.this, userInfo.getName() +  " long click" + position, Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(FriendsListActivity.this, ChatActivity.class);
+                //intent.putExtra("userInfo", new UserInfo[] {self, userInfo});
+                startActivity(intent);
             }
         });
 
